@@ -1,0 +1,8 @@
+.stack-work/
+dist-new/
+scheme2022.cabal
+*.log
+core
+*.hi
+*.o
+*~
