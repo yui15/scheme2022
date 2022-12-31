@@ -1,0 +1,10 @@
+:q
+:q
+sample
+:r
+sample
+:r
+showSExpr sample
+:l src/SExpression.hs
+showSExpr sample
+:r

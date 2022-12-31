@@ -1,6 +1,13 @@
 module Main where
 
-import Lib
+import System.Environment
+import Data.Char
 
 main :: IO ()
-main = someFunc
+main = interact . drive . run =<< readFile . head =<< getArgs
+
+drive :: ([String] -> [String]) -> (String -> String)
+drive f = unlines . f . lines
+
+run :: String -> ([String] -> [String])
+run prog = map (map toUpper)
