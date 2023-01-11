@@ -27,6 +27,8 @@ dependencies:
 - time
 - hspec
 - parsec
+- main-tester
+- doctest
 
 library:
   source-dirs: src
@@ -35,6 +37,16 @@ executables:
   scheme2022:
     main:                Main.hs
     source-dirs:         app
+    ghc-options:
+    - -rtsopts
+    # - -threaded
+    # - -with-rtsopts=-N
+    dependencies:
+    - scheme2022
+
+  simple_parser:
+    main:                Main.hs
+    source-dirs:         app/simple_parser
     ghc-options:
     - -rtsopts
     # - -threaded

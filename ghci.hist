@@ -1,4 +1,19 @@
 :q
+readExpr "!"
+readExpr "!"
+package parsec
+package parsec
+readExpr "A"
+readExpr "-"
+readExpr "!"
+readExpr "!"
+readExpr "a"
+readExpr
+:l src/SExpression.hs
+:r src/SExpression.hs
+:r SExpression.hs
+readExpr "!"
+:q
 :q
 sample
 :r
