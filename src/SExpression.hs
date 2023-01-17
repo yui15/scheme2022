@@ -1,7 +1,8 @@
 module SExpression where
 
-import Text.ParserCombinators.Parsec hiding (spaces)
+import Text.ParserCombinators.Parsec
 import System.Environment
+import Data.Char
 
 data LispVal
     = Atom String
@@ -10,6 +11,7 @@ data LispVal
     | Number Integer
     | String String
     | Bool Bool
+    | Character Char
     deriving (Eq, Show)
 
 showLispVal :: LispVal -> String
@@ -35,13 +37,29 @@ sample = List [Atom "+", Number 1 , Number 2]
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 
-readExpr :: String -> String
-readExpr input = case parse (spaces >> symbol) "lisp" input of
-    Left  err -> "No match: " ++ show err
-    Right val -> "Found value"
+{- |
+parseExpr
+>>> testparse parseExpr "(define (f n) (if (= n 0) 1 (* n (f (- n 1)))))"
+Right (List [Atom "define",List [Atom "f",Atom "n"],List [Atom "if",List [Atom "=",Atom "n",Number 0],Number 1,List [Atom "*",Atom "n",List [Atom "f",List [Atom "-",Atom "n",Number 1]]]]])
+-}
 
-spaces :: Parser ()
-spaces = skipMany1 space
+parseExpr :: Parser LispVal
+parseExpr = parseAtom
+        <|> parseString
+        <|> parseNumber
+        <|> parseQuoted
+        <|> do char '('
+               x <- try parseList <|> parseDottedList
+               char ')'
+               return x
+
+readExpr :: String -> String
+readExpr input = case parse parseExpr "lisp" input of
+    Left err -> "No match: " ++ show err
+    Right _ -> "Found value"
+
+spaces1 :: Parser ()
+spaces1 = skipMany1 space
 
 parseLispVal :: Parser LispVal
 parseLispVal = parseAtom <|> parseString <|> parseNumber
@@ -67,14 +85,91 @@ parseCR = '\r' <$ (char '\\' *> char 'r')
 parseTAB = '\t' <$ (char '\\' *> char 't')
 parseBS = char '\\' *> char '\\'
 
+{- |
+parseAtom
+>>> testparse parseAtom "+-abc"
+Right (Atom "+-abc")
+>>> testparse parseAtom " #t "
+Right (Bool True)
+-}
+
 parseAtom :: Parser LispVal
-parseAtom = do first <- letter <|> symbol
+parseAtom = do spaces
+               first <- letter <|> symbol
                rest <- many (letter <|> digit <|> symbol)
                let atom = first:rest
                return $ case atom of
                           "#t" -> Bool True
                           "#f" -> Bool False
-                          _    -> Atom atom
+                          _    -> case splitAt 2 atom of
+                            ("#\\", "newline") -> Character '\n'
+                            ("#\\", "space")   -> Character ' '
+                            ("#\\", [c])
+                                | isAlpha c    -> Character c
+                                | otherwise    -> error "parseAtom"
+                            _                  -> Atom atom
+
+{- |
+parseNumber 
+>>> testparse parseNumber "123"
+Right (Number 123)
+-}
 
 parseNumber :: Parser LispVal
 parseNumber = Number . read <$> many1 digit
+
+{- |
+parseList
+>>> testparse parseList "hoge huga +"
+Right (List [Atom "hoge",Atom "huga",Atom "+"])
+-}
+
+parseList :: Parser LispVal
+parseList = List <$> sepBy parseExpr spaces1
+
+{- |
+parseDottedList
+>>> testparse parseDottedList "hoge huga . hage"
+Right (DottedList [Atom "hoge",Atom "huga"] (Atom "hage"))
+-}
+
+parseDottedList :: Parser LispVal
+parseDottedList = do
+    head <- endBy parseExpr spaces
+    tail <- char '.' >> spaces >> parseExpr
+    return $ DottedList head tail
+
+{- |
+parseQuoted
+>>> testparse parseQuoted "'hoge"
+Right (List [Atom "quote",Atom "hoge"])
+-}
+
+parseQuoted :: Parser LispVal
+parseQuoted = do
+   char '\''
+   x <- parseExpr
+   return $ List [Atom "quote", x]
+
+testparse :: Parser a -> String -> Either ParseError a
+testparse p = parse p "test"
+
+{- |
+showVal
+>>> testshow showVal (String "hoge")
+"hoge"
+>>> testshow showVal (List [Atom "define",List [Atom "f",Atom "n"],List [Atom "if",List [Atom "=",Atom "n",Number 0],Number 1,List [Atom "*",Atom "n",List [Atom "f",List [Atom "-",Atom "n",Number 1]]]]])
+(define (f n) (if (= n 0) 1 (* n (f (- n 1)))))
+-}
+
+showVal :: LispVal -> String
+showVal (String contents) = "\"" ++ contents ++ "\""
+showVal (Atom name) = name
+showVal (Number contents) = show contents
+showVal (Bool True) = "#t"
+showVal (Bool False) = "#f"
+showVal (List contents) = "(" ++ unwordsList contents ++ ")"
+showVal (DottedList head tail) = "(" ++ unwordsList head ++ " . " ++ showVal tail ++ ")"
+
+testshow :: (LispVal -> String) -> LispVal -> IO ()
+testshow s v = putStrLn (s v)

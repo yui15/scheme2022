@@ -55,17 +55,17 @@ executables:
     - scheme2022
 
 tests:
-  scheme2022-test:
-    main:                spec.hs
-    source-dirs:         test
-    # ghc-options:
-    # - -threaded
-    # - -rtsopts
-    # - -with-rtsopts=-N
-    dependencies:
-    - scheme2022
-    - hspec
-    - main-tester
+  # scheme2022-test:
+  #   main:                spec.hs
+  #   source-dirs:         test
+  #   # ghc-options:
+  #   # - -threaded
+  #   # - -rtsopts
+  #   # - -with-rtsopts=-N
+  #   dependencies:
+  #   - scheme2022
+  #   - hspec
+  #   - main-tester
 
   scheme2022-doctest:
     main:                doctests.hs

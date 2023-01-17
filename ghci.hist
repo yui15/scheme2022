@@ -1,4 +1,6 @@
 :q
+:q
+:q
 readExpr "!"
 readExpr "!"
 package parsec
