@@ -21,4 +21,4 @@ import Text.ParserCombinators.Parsec
 --     print $ parse parseLispVal "Lisp" $ head args
 
 main :: IO ()
-main = print . eval . readExpr . head =<< getArgs
+main = putStrLn . showLispVal . eval . readExpr . head =<< getArgs

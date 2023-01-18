@@ -12,10 +12,10 @@ data LispVal
     | String String
     | Bool Bool
     | Character Char
-    deriving (Eq)
+    deriving (Eq, Show)
 
-instance Show LispVal where
-    show = showLispVal
+-- instance Show LispVal where
+--     show = showLispVal
 
 showLispVal :: LispVal -> String
 showLispVal e = case e of 

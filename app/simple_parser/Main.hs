@@ -6,4 +6,4 @@ import SExpression
 import Eval
 
 main :: IO ()
-main = print . eval . readExpr . head =<< getArgs
+main = print . readExpr . head =<< getArgs

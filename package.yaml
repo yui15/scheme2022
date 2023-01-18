@@ -29,6 +29,7 @@ dependencies:
 - parsec
 - main-tester
 - doctest
+- mtl
 
 library:
   source-dirs: src
