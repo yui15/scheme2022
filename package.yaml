@@ -54,6 +54,17 @@ executables:
     dependencies:
     - scheme2022
 
+  eval:
+    main:                Main.hs
+    source-dirs:         app/eval
+    ghc-options:
+    - -rtsopts
+    # - -threaded
+    # - -with-rtsopts=-N
+    dependencies:
+    - scheme2022
+
+
 tests:
   # scheme2022-test:
   #   main:                spec.hs

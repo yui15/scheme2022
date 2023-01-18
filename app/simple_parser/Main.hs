@@ -3,9 +3,7 @@ module Main where
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment
 import SExpression
+import Eval
 
 main :: IO ()
-main = do
-          args <- getArgs
-          putStrLn (readExpr (args !! 0))
-
+main = print . eval . readExpr . head =<< getArgs

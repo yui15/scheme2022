@@ -12,7 +12,10 @@ data LispVal
     | String String
     | Bool Bool
     | Character Char
-    deriving (Eq, Show)
+    deriving (Eq)
+
+instance Show LispVal where
+    show = showLispVal
 
 showLispVal :: LispVal -> String
 showLispVal e = case e of 
@@ -23,13 +26,6 @@ showLispVal e = case e of
     Bool False      -> "#f"
     List contents   -> "(" ++ unwordsList contents ++ ")"
     DottedList hd tl -> "(" ++ unwordsList hd ++ "." ++ showLispVal tl ++ ")"
-
--- instance Show LispVal where 
---     show :: LispVal -> String
---     show = showLispVal
-
-unwordsList :: [LispVal] -> String
-unwordsList = unwords . map showLispVal
 
 sample :: LispVal 
 sample = List [Atom "+", Number 1 , Number 2]
@@ -53,16 +49,16 @@ parseExpr = parseAtom
                char ')'
                return x
 
-readExpr :: String -> String
+readExpr :: String -> LispVal
 readExpr input = case parse parseExpr "lisp" input of
-    Left err -> "No match: " ++ show err
-    Right _ -> "Found value"
+    Left err -> String $ "parse error: " ++ show err
+    Right v -> v
 
 spaces1 :: Parser ()
 spaces1 = skipMany1 space
 
 parseLispVal :: Parser LispVal
-parseLispVal = parseAtom <|> parseString <|> parseNumber
+parseLispVal = parseExpr
 
 {- | parseString
 >>> parse parseString "parseString" "\"\\\"hoge\\\" is\""
@@ -154,12 +150,22 @@ parseQuoted = do
 testparse :: Parser a -> String -> Either ParseError a
 testparse p = parse p "test"
 
+parse' :: Parser a -> String -> a
+parse' p s = case testparse p s of
+    Right r -> r
+    Left err -> error (show err)
+
 {- |
 showVal
 >>> testshow showVal (String "hoge")
 "hoge"
 >>> testshow showVal (List [Atom "define",List [Atom "f",Atom "n"],List [Atom "if",List [Atom "=",Atom "n",Number 0],Number 1,List [Atom "*",Atom "n",List [Atom "f",List [Atom "-",Atom "n",Number 1]]]]])
 (define (f n) (if (= n 0) 1 (* n (f (- n 1)))))
+>>> testshow showVal (parse' parseLispVal "(define (f n) (if (= n 0) 1 (* n (f (- n 1)))))")
+(define (f n) (if (= n 0) 1 (* n (f (- n 1)))))
+>>> ast = parse' parseLispVal "(define (f n) (if (= n 0) 1 (* n (f (- n 1)))))"
+>>> ast == parse' parseLispVal (showVal ast)
+True
 -}
 
 showVal :: LispVal -> String
@@ -170,6 +176,9 @@ showVal (Bool True) = "#t"
 showVal (Bool False) = "#f"
 showVal (List contents) = "(" ++ unwordsList contents ++ ")"
 showVal (DottedList head tail) = "(" ++ unwordsList head ++ " . " ++ showVal tail ++ ")"
+
+unwordsList :: [LispVal] -> String
+unwordsList = unwords . map showVal
 
 testshow :: (LispVal -> String) -> LispVal -> IO ()
 testshow s v = putStrLn (s v)
