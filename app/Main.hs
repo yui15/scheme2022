@@ -1,8 +1,8 @@
 module Main where
 
+import Control.Monad
 import System.Environment
 import Data.Char
-import Eval
 import SExpression
 import Text.ParserCombinators.Parsec
 
@@ -21,4 +21,7 @@ import Text.ParserCombinators.Parsec
 --     print $ parse parseLispVal "Lisp" $ head args
 
 main :: IO ()
-main = putStrLn . showLispVal . eval . readExpr . head =<< getArgs
+main = do
+    args <- getArgs
+    evaled <- return $ liftM showVal $ readExpr (args !! 0) >>= eval
+    putStrLn $ extractValue $ trapError evaled

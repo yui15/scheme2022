@@ -1,4 +1,7 @@
 :q
+:q
+ghci
+:q
 :t parse
 :l src/SExpression.hs 
 :q
