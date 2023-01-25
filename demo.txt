@@ -1,0 +1,32 @@
+(define (fact n)
+    (if (= n 0)
+        1
+        (* n (fact (- n 1)))
+    )
+)
+#|
+(fact 3)
+(* 3 (fact 2))
+(* 3 (* 2 (fact 1)))
+(* 3 (* 2 (* 1 (fact 0))))
+(* 3 (* 2 (* 1 1)))
+(* 3 (* 2 1))
+(* 3 2)
+6
+|#
+
+(define (fact2 n)
+    (factiter 1 n))
+
+(define (factiter a n)
+    (if (= n 0)
+        a
+        (factiter (* n a) (- n 1))))
+
+#|
+(factiter 1 3)
+(factiter 3 2)
+(factiter 6 1)
+(factiter 6 0)
+6
+|#
