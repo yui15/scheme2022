@@ -1,4 +1,13 @@
 :q
+:i runErrorT
+import Control.Monad.Error
+:q
+:i runErrorT
+:l src/Eval.hs
+:q
+:i =<<
+:i <$>
+:q
 :q
 ghci
 :q
