@@ -2,9 +2,9 @@ name:                scheme2022
 version:             0.1.0.0
 github:              "yui15/scheme2022"
 license:             BSD3
-author:              "Nobuo Yamashita, Yui Fukada"
+author:              "Yui Fukada, Nobuo Yamashita"
 maintainer:          "yui.fukada5541@gmail.com"
-copyright:           "Copyright: (c) 2022 Nobuo Yamashita, Yui Fukada"
+copyright:           "Copyright: (c) 2022-2023 Yui Fukada, Nobuo Yamashita"
 
 extra-source-files:
 - README.md
@@ -38,16 +38,6 @@ executables:
   scheme2022:
     main:                Main.hs
     source-dirs:         app
-    ghc-options:
-    - -rtsopts
-    # - -threaded
-    # - -with-rtsopts=-N
-    dependencies:
-    - scheme2022
-
-  simple_parser:
-    main:                Main.hs
-    source-dirs:         app/simple_parser
     ghc-options:
     - -rtsopts
     # - -threaded
